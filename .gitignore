@@ -1,0 +1,11 @@
+# Main
+.instructions/
+
+# Common Folders
+**/.vscode/**
+**/node_modules/**
+**/coverage/**
+**/log/**
+
+# Common Files
+**/.env
