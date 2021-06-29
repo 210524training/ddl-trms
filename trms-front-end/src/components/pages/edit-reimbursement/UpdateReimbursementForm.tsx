@@ -67,7 +67,7 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
   const [costs, setCosts] = useState<Item[]>(r.costs);
   const [grade, setGrade] = useState<string>(r.grade);
   const [workRelatedJustification, setWorkRelatedJustification] = useState<string>(r.workRelatedJustification);
-  const [attachements, setAttachements] = useState<Attachment[]>(r.attachments);
+  const [attachments, setAttachements] = useState<Attachment[]>(r.attachments);
   const [workTimeMissed, setWorkTimeMissed] = useState<string>(r.workTimeMissed + '');
   let [reimbursementStatus, setReimbursementStatus] = useState<Status>(r.reimbusementStatus);
   const [adminComments, setAdminComments] = useState<Comment[]>(r.adminComments);
@@ -177,7 +177,7 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
       workRelatedJustification,
       r.completed,
       amountPaid,
-      attachements,
+      attachments,
       parseInt(workTimeMissed) || 0,
       reimbursementStatus,
       adminComments,
@@ -280,9 +280,25 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
           {/* Input files */}
           <hr />
 
-          <FileListView items={r.attachments} />
+          <FileListView items={attachments} rid={r.id} onDelete={(idx: number) => {
+            attachments.splice(idx, 1);
+            setAttachements([
+              ...attachments
+            ]);
+            console.log(attachments);
+          }} />
           <FileUpload 
             rid={r.id}
+            onChange={(a: Attachment) => {
+              console.log(a);
+              console.log(attachments);
+              setAttachements([
+                ...attachments,
+                a
+              ]);
+
+              console.log(attachments);
+            }}
           />
 
           <hr />

@@ -1,8 +1,7 @@
 import React, { useRef, useState } from 'react';
 import client from '../../../remote/trms-backend/trms.client'
 
-const FileUpload = ({ rid }) => {
-    const [files, setFiles] = useState([]);
+const FileUpload = ({ rid, onChange }) => {
     const [file, setFile] = useState('');
     const [progress, setProgess] = useState(0);
     const el = useRef();
@@ -25,18 +24,21 @@ const FileUpload = ({ rid }) => {
             }
         }).then(res => {
             console.log(res);
+            if (res.status === 200) {
+                onChange(res.data);
+            } 
         }).catch(err => console.log(err))}
 
     return (
         <div>
             <div className="file-upload">
                 <input type="file" ref={el} onChange={handleChange} className="form-control" /> 
-                <div>
-                   {progress + '\n'}
-                   {progress === '100%' ? 'The file was uploaded!' : undefined}
+                <div className="progress" style={{marginTop: 10, marginBottom: 10}}>
+                    <div className="progress-bar" style={{width: progress}}>{progress}</div>
                 </div>
-                <div className="progress-bar" style={{width: progress}}></div>
-                <button onClick={uploadFile} className="btn btn-secondary">Upload</button>
+                <div>
+                    <button onClick={uploadFile} className="btn btn-secondary">Upload</button>
+                </div>
             <hr />
             </div>
         </div>

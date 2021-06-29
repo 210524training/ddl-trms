@@ -62,7 +62,9 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
               r={r}
               user={user}
               gradeFormat={gradeFormats.find(g => g.id === r.gradingFormatId) || new GradeFormat()}
-              sid={shortid()} /> 
+              sid={uuid()}
+              
+              /> 
             : undefined
           }
         </td>

@@ -28,14 +28,16 @@ export type Comment = {
   by: string;
 };
 
-export type Attachment = {
-  data: Binary,
-  encoding: string,
-  md5: string,
-  mimetype: string,
+export interface Attachment {
+  /** The file name */
   name: string,
+  /** The mimetype of the file */
+  mimetype: string,
+  /** File size in bytes */
   size: number,
-};
+  /** id in s3 bucket */
+  key: string,
+}
 
 export type Role = 'Employee' | 'Director Supervisor' | 'Department Head' | 'Benefits Coordinator';
 

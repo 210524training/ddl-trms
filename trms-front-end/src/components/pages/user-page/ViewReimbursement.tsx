@@ -4,7 +4,7 @@ import User from '../../../models/user';
 import Reimbursement from '../../../models/reimbursement';
 import GradeFormat from '../../../models/grade-format';
 import FileListView from './FileList';
-
+import { v4 as uuid } from 'uuid';
 interface Props {
   sid: string,
   user: User,
@@ -12,7 +12,7 @@ interface Props {
   r: Reimbursement,
 }
 
-const ViewReimbursement: React.FC<Props> = ({r, user, gradeFormat, sid}) => {
+const ViewReimbursement: React.FC<Props> = ({r, user, gradeFormat, sid = uuid()}) => {
   return (
     <>
       <button 
@@ -80,19 +80,25 @@ const ViewReimbursement: React.FC<Props> = ({r, user, gradeFormat, sid}) => {
                     <td>
                       <table className="table table-hover table-striped">
                         <thead>
-                          <th>Title</th>
-                          <th>Type</th>
-                          <th>Amount</th>
-                          <th>Description</th>
+                          <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                          </tr>
+                          
                         </thead>
                         <tbody>
+                          {r.costs.length === 0 ? (<tr><td colSpan={5}>No Costs.</td></tr>) : undefined}
                           {
-                            r.costs.map((c) => (
-                              <tr key={c.cost+c.description+c.title+c.type}>
+                            r.costs.map((c, idx) => (
+                              <tr key={`cost-${uuid()}`}>
+                                <td>{idx + 1}</td>
                                 <td>{c.title}</td>
                                 <td>{c.type}</td>
                                 <td>{c.cost}</td>
-                                <td>{c.description}</td>
+                                <td>{c.description || 'None.'}</td>
                               </tr>
                             ))
                           }
@@ -111,7 +117,8 @@ const ViewReimbursement: React.FC<Props> = ({r, user, gradeFormat, sid}) => {
                   <tr>
                     <th>attachments</th>
                     <td>
-                      <FileListView items={r.attachments} />
+                      {r.attachments.length === 0 ? (<tr><td colSpan={5}>No Attachments.</td></tr>) : undefined}
+                      <FileListView items={r.attachments} rid={r.id} />
                     </td>
                   </tr>
                   
@@ -128,13 +135,18 @@ const ViewReimbursement: React.FC<Props> = ({r, user, gradeFormat, sid}) => {
                     <td>
                       <table className="table table-striped table-hover">
                         <thead>
-                          <th>Comentator</th>
-                          <th>Comment</th>
+                          <tr>
+                            <th>#</th>
+                            <th>Comentator</th>
+                            <th>Comment</th>
+                          </tr>
                         </thead>
                         <tbody>
+                          {r.adminComments.length === 0 ? (<tr><td colSpan={3}>No comments.</td></tr>) : undefined}
                           {
-                            r.adminComments.map((c) => (
+                            r.adminComments.map((c, idx) => (
                               <tr key={c.by+c.comment}>
+                                <th>{idx + 1}</th>
                                 <th>{c.by}</th>
                                 <td>{c.comment}</td>
                               </tr>

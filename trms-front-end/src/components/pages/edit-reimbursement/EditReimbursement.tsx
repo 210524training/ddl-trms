@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { useAppSelector } from '../../../hooks';
 import GradeFormat from '../../../models/grade-format';
 import Reimbursement from '../../../models/reimbursement';
@@ -22,7 +22,7 @@ interface Props {
 const EditReimbursement: React.FC<Props> = ({ review }): JSX.Element => {
   const { id } = useParams<Params>();
   const user = useAppSelector<UserState>(selectUser);
-
+  const history = useHistory();
   const [createdBy, setCreatedBy] = useState<User>();
   const [gradeFormats, setGradeFormats] = useState<GradeFormat[]>();
 
@@ -43,6 +43,9 @@ const EditReimbursement: React.FC<Props> = ({ review }): JSX.Element => {
     setStatus(undefined)
   }, [id]);
 
+  if (!user) {
+    history.push('/');
+  }
   return (
     <>
       <br />
