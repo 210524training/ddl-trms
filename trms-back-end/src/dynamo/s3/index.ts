@@ -1,8 +1,9 @@
 import S3 from 'aws-sdk/clients/s3';
 import dotenv from 'dotenv';
 import fs from 'fs';
-import { Express } from 'express';
+import util from 'util';
 import internal from 'stream';
+import { Express } from 'express';
 
 dotenv.config({});
 
@@ -36,3 +37,5 @@ export const download = (fileKey: string): internal.Readable => {
 
   return s3.getObject(downloadParams).createReadStream();
 };
+
+export const unLinkFile = util.promisify(fs.unlink);

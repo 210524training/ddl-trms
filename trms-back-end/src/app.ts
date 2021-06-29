@@ -5,7 +5,6 @@ import express, { NextFunction, Request, Response } from 'express';
 import 'express-async-errors';
 import StatusCodes from 'http-status-codes';
 import cors from 'cors';
-// import fileUpload from 'express-fileupload';
 import log from './log';
 import baseRouter from './routes';
 import {
@@ -19,7 +18,7 @@ import {
 } from './errors';
 
 import reimbursementService from './services/reimbursement.service';
-import { upload as uploadFile, download as downloadFile } from './dynamo/s3';
+import { upload as uploadFile, download as downloadFile, unLinkFile } from './dynamo/s3';
 
 import { Attachment } from './@types/trms/index.d';
 
@@ -47,8 +46,6 @@ app.use(expressSession({
   saveUninitialized: true,
 }));
 
-// app.use(fileUpload());
-
 const upload = multer({ dest: 'uploads/' });
 
 const uploadRoute = async (req: Request<{ rid: string }>, res: Response) => {
@@ -74,7 +71,8 @@ const uploadRoute = async (req: Request<{ rid: string }>, res: Response) => {
   }
 
   const result = await uploadFile(file);
-  log.debug('Uploading file...', result);
+  await unLinkFile(file.path);
+  log.debug(result);
 
   if (result.Key) {
     const attachment: Attachment = {
@@ -206,8 +204,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  // TODO: Refactor later that sends back more than just a 400
-  // Because not all requests that fail are the fault of the client
   console.log('Our custom error handler');
   log.error(err);
   res.status(BAD_REQUEST).json({
