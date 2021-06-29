@@ -1,12 +1,12 @@
 import express, { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { UploadedFile } from 'express-fileupload';
+// import { UploadedFile } from 'express-fileupload';
 import userService from '../services/user.service';
 import userRouterV1 from './v1/user.router';
 import reimbursementRouterV1 from './v1/reimbursement.router';
 import gradeFormatRouterV1 from './v1/grade-format.router';
-import { BadRequestError } from '../errors';
-import log from '../log';
+// import { BadRequestError } from '../errors';
+// import log from '../log';
 
 const baseRouter = Router();
 
@@ -40,21 +40,21 @@ export const logout = async (
 
 baseRouter.post('/login', login);
 baseRouter.post('/logout', logout);
-baseRouter.post('/upload', async (
-  req: express.Request,
-  res: express.Response,
-) => {
-  const { files, session: { user }, body: { id } } = req;
+// baseRouter.post('/upload', async (
+//   req: express.Request,
+//   res: express.Response,
+// ) => {
+//   const { files, session: { user }, body: { id } } = req;
 
-  if (!files || !user || !id) {
-    throw new BadRequestError('No file was uploaded, not logged in, or the reimbursement id was not provided.');
-  }
+//   if (!files || !user || !id) {
+//     throw new BadRequestError('No file was uploaded, not logged in, or the reimbursement id was not provided.');
+//   }
 
-  const { file } = files;
-  log.debug(file);
-  // log.debug(file instanceof UploadedFile);
-  res.json(files);
-});
+//   const { file } = files;
+//   log.debug(file);
+//   // log.debug(file instanceof UploadedFile);
+//   res.json(files);
+// });
 
 baseRouter.use('/api/v1/users', userRouterV1);
 baseRouter.use('/api/v1/reimbursements', reimbursementRouterV1);

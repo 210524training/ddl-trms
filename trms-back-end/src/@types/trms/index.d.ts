@@ -1,4 +1,3 @@
-declare module './upload';
 
 export type Grade = string;
 
@@ -31,17 +30,14 @@ export type Comment = {
 };
 
 export interface Attachment {
-  data: any,
   /** The file name */
-  name?: string,
-  /** The encoding type of the file */
-  encoding?: string,
+  name: string,
   /** The mimetype of the file */
-  type?: string,
+  mimetype: string,
   /** File size in bytes */
-  size?: number,
-  /** checksum of file */
-  md5?: string,
+  size: number,
+  /** id in s3 bucket */
+  key: string,
 }
 
 export type Role = 'Employee' | 'Director Supervisor' | 'Department Head' | 'Benefits Coordinator';
