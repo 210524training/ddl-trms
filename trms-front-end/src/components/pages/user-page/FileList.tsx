@@ -21,6 +21,7 @@ const FileListView: React.FC<Props> = ({ items, rid, onDelete }): JSX.Element =>
         </tr>
       </thead>
         <tbody>
+          {items.length === 0 ? (<tr><td colSpan={5 + (!!onDelete ? 1 : 0)} style={{textAlign: 'center'}}>No Attachments.</td></tr>) : undefined}
           {
             items.map((a, idx) => (
               <tr key={`view-file-item-${rid}-${a.key}-${a.size}`}>

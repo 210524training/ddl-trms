@@ -8,7 +8,7 @@ import User from '../../../models/user';
 import CUser from '../../../models/user';
 import { updateReimbursement } from '../../../remote/trms-backend/trms.reimbusements.api';
 import InputField from './InputFeild';
-import RadioField from './RadioField';
+import RadioField, { RadioFieldOption } from './RadioField';
 import { generate as shortid } from 'shortid';
 import { validDate } from '../user-page/utils';
 import CostsInput from './CostsInput';
@@ -16,8 +16,6 @@ import CommentsInput, { CommentList } from './CommentsInput';
 import { myReimbursements } from '../../../remote/trms-backend/trms.users.api';
 import FileUpload from '../upload/UploadPage';
 import FileListView from '../user-page/FileList';
-// import InputUpload from '../upload/Upload';
-
 interface Props {
   r: Reimbursement,
   gradeFormats: GradeFormat[],
@@ -55,6 +53,7 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
     }
   }
 
+  const costTypes = ['Event Cost', 'Course Material', 'Other']
   const statusList: Status[] = ['Approved', 'Rejected', 'Urgent', 'Submitted', 'Started Approval Process', 'More Information Needed', ];
   const eventTypes: EventType[] = ['University Courses', 'Seminars', 'Certification Preparation Classes', 'Certification', 'Technical Training', 'Other'];
   const [title, setTitle] = useState<string>(r.title);
@@ -69,100 +68,123 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
   const [workRelatedJustification, setWorkRelatedJustification] = useState<string>(r.workRelatedJustification);
   const [attachments, setAttachements] = useState<Attachment[]>(r.attachments);
   const [workTimeMissed, setWorkTimeMissed] = useState<string>(r.workTimeMissed + '');
-  let [reimbursementStatus, setReimbursementStatus] = useState<Status>(r.reimbusementStatus);
+  const [reimbursementStatus, setReimbursementStatus] = useState<Status>(r.reimbusementStatus);
   const [adminComments, setAdminComments] = useState<Comment[]>(r.adminComments);
 
   const [amountPaid, setAmountPaid] = useState<number>(0);
   const [reses, setReses] = useState<Reimbursement[]>([])
-  
+
+  const [initialOptionsEventType, setInitialOptionsEventType] = useState<RadioFieldOption[]>([]);
+  const [initialOptionsCostItems, setInitialOptionsCostItems] = useState<RadioFieldOption[]>([]);
+  const [initialOptionsGradeFormats, setInitialOptionsGradeFormats] = useState<RadioFieldOption[]>([]);
 
   useEffect(() => {
     myReimbursements(createdBy.id).then(e => {
       setReses(e);
     });
+
+    const gfops = gradeFormats.map((gf) => ({
+        displayName: `${gf.gradeFormat} (passing: ${gf.passingGrade})`,
+        uid: gf.id + '-radio-input',
+        defaultValue: gf.id,
+        disabled: false,
+        defaultChecked: gf.id === r.gradingFormatId,
+      } as RadioFieldOption)
+    );
+
+    const etops = eventTypes.map((e) => ({
+        displayName: e,
+        uid: shortid(),
+        defaultValue: e,
+        disabled: false,
+        defaultChecked: e === r.eventType,
+      } as RadioFieldOption)
+    );
+
+    const ciops = costTypes.map((e) => ({
+        displayName: e,
+        uid: shortid(),
+        defaultValue: e,
+        disabled: false,
+        defaultChecked: e === 'Other',
+      } as RadioFieldOption)
+    );
+
     getAmountToBePaid(createdBy, costs, eventType, reses, setAmountPaid);
+    setInitialOptionsEventType([...etops]);
+    setInitialOptionsCostItems([...ciops]);
+    setInitialOptionsGradeFormats([...gfops]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setTitle(e.target.value);
   };
   
   const handleGradeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setGrade(e.target.value);
   };
 
   const handleEventTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setEventType(e.currentTarget.value as EventType);
   };
 
   const handleGradingFormatIdChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setGradingFormatId(e.currentTarget.value);
   };
 
   const handleOnStatusChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setReimbursementStatus(e.currentTarget.value as Status);
   };
 
-
   const handleStartDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setStartDate(validDate(new Date(e.target.value)));
   };
 
   const handleEndDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setEndDate(validDate(new Date(e.target.value)));
   };
 
   const handleLocationOfEventChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setLocationOfEvent(e.target.value);
   };
 
   const handleDescriptionOfEventChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setDescriptionOfEvent(e.target.value);
   };
 
   
   const handleWorkRelatedJustificationChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setWorkRelatedJustification(e.target.value);
   };
   const handleWorkTimeMissedChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     setWorkTimeMissed(parseInt(e.target.value) + '');
   };
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.stopPropagation();
     e.preventDefault();
 
     const approvals = r.approvals;
     let startedApprovalProcess = false;
+    let rs = reimbursementStatus;
     if (reimbursementStatus === 'Approved' || reimbursementStatus === 'Started Approval Process' || reimbursementStatus === 'More Information Needed') {
       if (requestedBy.employeeRoles.includes('Department Head')) {
         r.approvals.startDate = new Date().toLocaleString();
         startedApprovalProcess = true;
         r.approvals.departmentHead = true;
-        reimbursementStatus = reimbursementStatus === 'Approved' ? 'Started Approval Process' : reimbursementStatus;
+        rs = reimbursementStatus === 'Approved' ? 'Started Approval Process' : reimbursementStatus;
       }
 
       if (requestedBy.employeeRoles.includes('Director Supervisor')) {
         startedApprovalProcess = true;
         r.approvals.directorSupervisor = true;
-        reimbursementStatus = reimbursementStatus === 'Approved' ? 'Started Approval Process' : reimbursementStatus;
+        rs = reimbursementStatus === 'Approved' ? 'Started Approval Process' : reimbursementStatus;
       }
 
       if (requestedBy.employeeRoles.includes('Benefits Coordinator')) {
         startedApprovalProcess = true;
         r.approvals.benefitsCoordinator = true;
-        reimbursementStatus = 'Approved'
+        rs = 'Approved'
       }
     }
 
@@ -190,7 +212,7 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
       amountPaid,
       attachments,
       parseInt(workTimeMissed) || 0,
-      reimbursementStatus,
+      rs,
       adminComments,
       r.id,
       r.createdAt,
@@ -235,6 +257,7 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
           <CostsInput
             items={costs}
             setItems={setCosts}
+            initialOptions={initialOptionsCostItems}
             onChange={() => getAmountToBePaid(createdBy, costs, eventType, reses, setAmountPaid)}
           />
 
@@ -243,16 +266,7 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
           <RadioField 
             displayName="Event Type"
             name="eventType"
-            options={
-              eventTypes.map((e) => ({
-                displayName: e,
-                uid: shortid(),
-                defaultValue: e,
-                disabled: false,
-                defaultChecked: e === r.eventType,
-              })
-            )
-          }
+            options={initialOptionsEventType}
             onChange={handleEventTypeChange}
           />
 
@@ -262,16 +276,7 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
           <RadioField 
             displayName="Grade Formats"
             name="gradeFormat"
-            options={
-              gradeFormats.map((gf) => ({
-                displayName: `${gf.gradeFormat} (passing: ${gf.passingGrade})`,
-                uid: gf.id + '-radio-input',
-                defaultValue: gf.id,
-                disabled: false,
-                defaultChecked: gf.id === r.gradingFormatId,
-              })
-            )
-          }
+            options={initialOptionsGradeFormats}
             onChange={handleGradingFormatIdChange}
           />
 

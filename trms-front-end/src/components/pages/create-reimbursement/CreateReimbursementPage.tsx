@@ -158,6 +158,7 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
           <CostsInput
             items={costs}
             setItems={setCosts}
+            initialOptions={[]}
             onChange={() => getAmountToBePaid(requestedBy, costs, eventType, reses, setAmountPaid)}
           />
 

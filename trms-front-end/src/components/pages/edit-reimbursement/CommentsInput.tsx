@@ -78,6 +78,7 @@ export const CommentList: React.FC<Props> = ({items, by, setItems}): JSX.Element
         </tr>
       </thead>
       <tbody>
+        {items.length === 0 ? <tr><td colSpan={3} style={{textAlign: 'center'}}>No Comments</td></tr> : undefined}
         {
           items.filter(i => !!i.comment.trim()).map((i, idx) => (
             <tr key={i.by + shortid()}>
