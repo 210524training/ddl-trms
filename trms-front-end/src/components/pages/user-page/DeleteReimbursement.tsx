@@ -18,6 +18,15 @@ const DeleteReimbursement: React.FC<Props> = ({sid, id, title, update}): JSX.Ele
         data-bs-toggle="modal"
         data-bs-target={"#" + sid}
         title={`${action} ${title}`}
+        onClick={(e) => {
+          e.preventDefault();
+          const element: any = document.getElementById(sid);
+          if (element) {
+            try {
+              element.modal('show')
+            } catch (e) {}
+          }
+        }}
       >
         <i className="bi bi-trash text-danger"></i>
       </button>

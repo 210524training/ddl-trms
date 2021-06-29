@@ -1,19 +1,29 @@
 import React, { useRef, useState } from 'react';
+import { Attachment } from '../../../@types';
 import client from '../../../remote/trms-backend/trms.client'
 
-const FileUpload = ({ rid, onChange }) => {
-    const [file, setFile] = useState('');
-    const [progress, setProgess] = useState(0);
-    const el = useRef();
+interface Props {
+    rid: string,
+    onChange: (a: Attachment) => void
+}
 
-    const handleChange = (e) => {
-        setProgess(0)
-        const file = e.target.files[0];
-        console.log(file);
-        setFile(file);
+const FileUpload: React.FC<Props> = ({ rid, onChange }) => {
+    const [file, setFile] = useState<Blob | string>('');
+    const [progress, setProgess] = useState<string>('0%');
+    const el = useRef<HTMLInputElement>(null);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setProgess('0%')
+            const file = e.target.files[0];
+            console.log(file);
+            setFile(file);
+        } else {
+            setProgess('Please provide a file.')
+        }
     }
 
-    const uploadFile = (e) => {
+    const uploadFile = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
         const formData = new FormData();        
         formData.append('file', file);
@@ -27,7 +37,12 @@ const FileUpload = ({ rid, onChange }) => {
             if (res.status === 200) {
                 onChange(res.data);
             } 
-        }).catch(err => console.log(err))}
+        }).catch(err => {
+            console.error(err);
+            if (err.message.includes('400')) {
+                setProgess('Bad Request (400): Missing File?')
+            }
+        })}
 
     return (
         <div>

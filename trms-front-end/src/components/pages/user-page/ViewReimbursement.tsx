@@ -18,13 +18,22 @@ const ViewReimbursement: React.FC<Props> = ({r, user, gradeFormat, sid = uuid()}
       <button 
         className="btn btn-sm"
         data-bs-toggle="modal"
-        data-bs-target={"#" + sid}
+        data-bs-target={`#${sid}`}
+        onClick={(e) => {
+          e.preventDefault();
+          const element: any = document.getElementById(sid);
+          if (element) {
+            try {
+              element.modal('show')
+            } catch (e) {}
+          }
+        }}
         title={`View ${r.title}`}
       >
-        <i className="bi bi-eye text-primary"></i>
+        <i data-target={`${sid}`} className="bi bi-eye text-primary"></i>
       </button>
 
-      <div className="modal fade bd-example-modal-xl" id={sid} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-labelledby={sid + '-label'} aria-hidden="true">
+      <div className="modal fade bd-example-modal-xl" id={sid} data-bs-keyboard="false" tabIndex={-1} aria-labelledby={sid + '-label'} aria-hidden="true">
         <div className="modal-dialog modal-xl">
           <div className="modal-content">
             <div className="modal-header">

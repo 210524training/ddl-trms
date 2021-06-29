@@ -84,52 +84,63 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
   }, []);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setTitle(e.target.value);
   };
   
   const handleGradeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setGrade(e.target.value);
   };
 
   const handleEventTypeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setEventType(e.currentTarget.value as EventType);
   };
 
   const handleGradingFormatIdChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setGradingFormatId(e.currentTarget.value);
   };
 
   const handleOnStatusChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setReimbursementStatus(e.currentTarget.value as Status);
   };
 
 
   const handleStartDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setStartDate(validDate(new Date(e.target.value)));
   };
 
   const handleEndDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setEndDate(validDate(new Date(e.target.value)));
   };
 
   const handleLocationOfEventChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setLocationOfEvent(e.target.value);
   };
 
   const handleDescriptionOfEventChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setDescriptionOfEvent(e.target.value);
   };
 
   
   const handleWorkRelatedJustificationChange = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
+    e.stopPropagation();
     setWorkRelatedJustification(e.target.value);
   };
   const handleWorkTimeMissedChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     setWorkTimeMissed(parseInt(e.target.value) + '');
   };
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.stopPropagation();
     e.preventDefault();
 
     const approvals = r.approvals;
