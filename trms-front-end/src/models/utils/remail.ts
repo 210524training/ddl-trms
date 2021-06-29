@@ -14,7 +14,7 @@ export const injectAnchorTags = (sentence: string): string => {
       const https = !word.startsWith('http') ? 'https://' : '';
       builder.push(`<a rel="noreferrer" target="_blank" href="${https}${word}">${word}</a>`);
     } else {
-      builder.push(word);
+      builder.push(escape(word));
     }
   });
 
