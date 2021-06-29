@@ -12,7 +12,7 @@ import { validDate } from '../user-page/utils';
 import { myReimbursements } from '../../../remote/trms-backend/trms.users.api';
 import InputField from '../edit-reimbursement/InputFeild';
 import CostsInput from '../edit-reimbursement/CostsInput';
-import RadioField from '../edit-reimbursement/RadioField';
+import RadioField, { RadioFieldOption } from '../edit-reimbursement/RadioField';
 
 interface Props {
   gradeFormats: GradeFormat[],
@@ -30,6 +30,8 @@ const getAmountToBePaid = async (createdBy: User, costs: Item[], eventType: Even
   
 }
 const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy }): JSX.Element => {
+
+  const costTypes = ['Event Cost', 'Course Material', 'Other']
   const id = uuid();
   const history = useHistory();
   const eventTypes: EventType[] = ['University Courses', 'Seminars', 'Certification Preparation Classes', 'Certification', 'Technical Training', 'Other'];
@@ -47,7 +49,11 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
 
 
   const [amountPaid, setAmountPaid] = useState<number>(0);
-  const [reses, setReses] = useState<Reimbursement[]>([])
+  const [reses, setReses] = useState<Reimbursement[]>([]);
+
+  const [initialOptionsEventType, setInitialOptionsEventType] = useState<RadioFieldOption[]>([]);
+  const [initialOptionsCostItems, setInitialOptionsCostItems] = useState<RadioFieldOption[]>([]);
+  const [initialOptionsGradeFormats, setInitialOptionsGradeFormats] = useState<RadioFieldOption[]>([]);
   
 
   useEffect(() => {
@@ -55,6 +61,39 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
       setReses(e);
     });
     getAmountToBePaid(requestedBy, costs, eventType, reses, setAmountPaid);
+
+    const gfops = gradeFormats.map((gf) => ({
+        displayName: `${gf.gradeFormat} (passing: ${gf.passingGrade})`,
+        uid: gf.id + '-radio-input',
+        defaultValue: gf.id,
+        disabled: false,
+        defaultChecked: true,
+      } as RadioFieldOption)
+    );
+
+    const etops = eventTypes.map((e) => ({
+        displayName: e,
+        uid: shortid(),
+        defaultValue: e,
+        disabled: false,
+        defaultChecked: true,
+      } as RadioFieldOption)
+    );
+
+    const ciops = costTypes.map((e) => ({
+        displayName: e,
+        uid: shortid(),
+        defaultValue: e,
+        disabled: false,
+        defaultChecked: e === 'Other',
+      } as RadioFieldOption)
+    );
+
+    getAmountToBePaid(requestedBy, costs, eventType, reses, setAmountPaid);
+    setInitialOptionsEventType([...etops]);
+    setInitialOptionsCostItems([...ciops]);
+    setInitialOptionsGradeFormats([...gfops]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -158,7 +197,7 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
           <CostsInput
             items={costs}
             setItems={setCosts}
-            initialOptions={[]}
+            initialOptions={initialOptionsCostItems}
             onChange={() => getAmountToBePaid(requestedBy, costs, eventType, reses, setAmountPaid)}
           />
 
@@ -167,16 +206,7 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
           <RadioField 
             displayName="Event Type"
             name="eventType"
-            options={
-              eventTypes.map((e) => ({
-                displayName: e,
-                uid: shortid(),
-                defaultValue: e,
-                disabled: false,
-                defaultChecked: true,
-              })
-            )
-          }
+            options={initialOptionsEventType}
             onChange={handleEventTypeChange}
           />
 
@@ -186,16 +216,7 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
           <RadioField 
             displayName="Grade Formats"
             name="gradeFormat"
-            options={
-              gradeFormats.map((gf) => ({
-                displayName: `${gf.gradeFormat} (passing: ${gf.passingGrade})`,
-                uid: gf.id + '-radio-input',
-                defaultValue: gf.id,
-                disabled: false,
-                defaultChecked: true,
-              })
-            )
-          }
+            options={initialOptionsGradeFormats}
             onChange={handleGradingFormatIdChange}
           />
 

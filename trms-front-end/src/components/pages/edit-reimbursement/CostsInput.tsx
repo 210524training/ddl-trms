@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Item } from '../../../@types';
-import { generate as shortid } from 'shortid';
 import RadioField, { RadioFieldOption } from './RadioField';
 import InputField from './InputFeild';
 

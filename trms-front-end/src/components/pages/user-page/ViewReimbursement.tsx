@@ -6,6 +6,7 @@ import GradeFormat from '../../../models/grade-format';
 import FileListView from './FileList';
 import { v4 as uuid } from 'uuid';
 import Modal from './Modal';
+import { injectAnchorTags } from '../../../models/utils/remail';
 interface Props {
   sid: string,
   user: User,
@@ -55,16 +56,12 @@ const DisplayTable: React.FC<{ r: Reimbursement, user: User, gradeFormat: GradeF
           <td>{gradeFormat.passingGrade}</td>
         </tr>
         <tr>
-          <th>Grade</th>
-          <td>{r.grade}</td>
+          <th>Grade/Presentation</th>
+          <td dangerouslySetInnerHTML={{__html: injectAnchorTags(r.grade)}}></td>
         </tr>
         <tr>
-          <th>Start Date</th>
-          <td>{r.startDate}</td>
-        </tr>
-        <tr>
-          <th>End Date</th>
-          <td>{r.endDate}</td>
+          <th>Start/End Date</th>
+          <td>{r.startDate} / {r.endDate}</td>
         </tr>
         <tr>
           <th>Location of the Event</th>

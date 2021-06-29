@@ -20,7 +20,6 @@ const CostsInput: React.FC<Props> = ({ items, by, setItems }): JSX.Element => {
     <div className="form-group row">
       
       <div className="col-sm-10">
-
         <CommentList items={items} setItems={setItems} by={by} />
         <div id="costsField">
           <InputField
@@ -78,7 +77,7 @@ export const CommentList: React.FC<Props> = ({items, by, setItems}): JSX.Element
         </tr>
       </thead>
       <tbody>
-        {items.length === 0 ? <tr><td colSpan={3} style={{textAlign: 'center'}}>No Comments</td></tr> : undefined}
+        {items.length === 0 ? <tr><td colSpan={3 + (isAdmin ? 1 : 0)} style={{textAlign: 'center'}}>No Comments</td></tr> : undefined}
         {
           items.filter(i => !!i.comment.trim()).map((i, idx) => (
             <tr key={i.by + shortid()}>

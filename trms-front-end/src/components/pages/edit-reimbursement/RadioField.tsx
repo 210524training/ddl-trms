@@ -1,5 +1,4 @@
-import React, { ChangeEvent, MouseEventHandler } from 'react';
-import { options } from 'yargs';
+import React, { ChangeEvent } from 'react';
 
 export interface RadioFieldOption {
   defaultValue: string,

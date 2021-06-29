@@ -35,7 +35,8 @@ const AllReimbursements: React.FC<unknown> = (props): JSX.Element => {
     if (user) {
       setData(user);
     }
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const displayReimbursemnt = (r: Reimbursement, idx: number) => {
     const color = translateStatusToColor(r.reimbusementStatus);

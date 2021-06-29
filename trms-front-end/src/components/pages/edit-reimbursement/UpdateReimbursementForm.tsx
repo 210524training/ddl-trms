@@ -72,11 +72,12 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
   const [adminComments, setAdminComments] = useState<Comment[]>(r.adminComments);
 
   const [amountPaid, setAmountPaid] = useState<number>(0);
-  const [reses, setReses] = useState<Reimbursement[]>([])
+  const [reses, setReses] = useState<Reimbursement[]>([]);
 
   const [initialOptionsEventType, setInitialOptionsEventType] = useState<RadioFieldOption[]>([]);
   const [initialOptionsCostItems, setInitialOptionsCostItems] = useState<RadioFieldOption[]>([]);
   const [initialOptionsGradeFormats, setInitialOptionsGradeFormats] = useState<RadioFieldOption[]>([]);
+  const [initialOptionsStatusList, setInitialOptionsStatusList] = useState<RadioFieldOption[]>([]);
 
   useEffect(() => {
     myReimbursements(createdBy.id).then(e => {
@@ -110,10 +111,20 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
       } as RadioFieldOption)
     );
 
+    const slops = statusList.map((status, idx) => ({
+        displayName: status,
+        uid: status + '-radio-input-' + idx,
+        defaultValue: status,
+        disabled: false,
+        defaultChecked: status === r.reimbusementStatus,
+      } as RadioFieldOption)
+    );
+
     getAmountToBePaid(createdBy, costs, eventType, reses, setAmountPaid);
     setInitialOptionsEventType([...etops]);
     setInitialOptionsCostItems([...ciops]);
     setInitialOptionsGradeFormats([...gfops]);
+    setInitialOptionsStatusList([...slops]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -224,6 +235,39 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
     ));
 
     history.push('/me?updated=' + !!response)
+  }
+
+  let statusRadioFiled = undefined;
+
+  const field: JSX.Element = <RadioField 
+    displayName="Status"
+    name="statusRadio"
+    options={initialOptionsStatusList}
+    onChange={handleOnStatusChange}
+  />;
+
+  if (review) {
+    if (requestedBy.employeeRoles.includes('Benefits Coordinator')) {
+      if (r.approvals.departmentHead && r.approvals.directorSupervisor) {
+        statusRadioFiled = field;
+      } else {
+        if (!r.approvals.departmentHead && r.approvals.directorSupervisor) {
+          statusRadioFiled = <p>Approval needed by the Department Head</p>;
+        } else if (r.approvals.departmentHead && !r.approvals.directorSupervisor) {
+          statusRadioFiled = <p>Approval needed by the Director Supervisor</p>
+        } else {
+          statusRadioFiled = <p>Approvals needed to continue</p>
+        }
+      }
+    } else if (requestedBy.employeeRoles.includes('Director Supervisor')) {
+      if (!r.approvals.departmentHead && !requestedBy.employeeRoles.includes('Department Head')) {
+        statusRadioFiled = <p>Approval needed by the Department Head</p>;
+      } else {
+        statusRadioFiled = field;
+      }
+    } else {
+      statusRadioFiled = field;
+    }
   }
 
   return (
@@ -383,21 +427,7 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
 
                 <hr />
 
-                <RadioField 
-                  displayName="Status"
-                  name="statusRadio"
-                  options={
-                    statusList.map((status, idx) => ({
-                      displayName: status,
-                      uid: status + '-radio-input-' + idx,
-                      defaultValue: status,
-                      disabled: false,
-                      defaultChecked: status === r.reimbusementStatus,
-                    })
-                  )
-                }
-                  onChange={handleOnStatusChange}
-                />
+                {statusRadioFiled}
 
                 <hr />
 

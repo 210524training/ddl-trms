@@ -40,6 +40,7 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
     if (user) {
       setData(user);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const displayReimbursemnt = (r: Reimbursement, idx: number) => {
@@ -53,7 +54,6 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
         <td>{r.id}</td>
         <td>{r.title}</td>
         <td>{r.reimbusementStatus}</td>
-        <td>{r.createdAt}</td>
         <td>{r.updatedAt}</td>
         <td className="text-center">
           {
@@ -146,7 +146,6 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
             <th>ID</th>
             <th>Title</th>
             <th>Status</th>
-            <th>Created</th>
             <th>Last Update</th>
             <th>View</th>
             <th>Modify</th>
