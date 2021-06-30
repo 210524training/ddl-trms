@@ -1,7 +1,10 @@
 /* eslint-disable max-len */
+import dotenv from 'dotenv';
 import * as nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import log from '../log';
+
+dotenv.config({});
 
 /** This is not an exhaustive list */
 interface Options {

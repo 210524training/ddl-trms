@@ -6,6 +6,10 @@ import userRepository, { UserRepository } from '../repositories/user.repository'
 import Mail from '../utils/mail';
 import Service from './generic/service';
 
+const sleep = (ms: number) => new Promise((resolve) => {
+  log.debug(`Sleeping ${ms / 1000} seconds...`);
+  setTimeout(resolve, ms);
+});
 export class UserService extends Service<User, UserRepository> {
   constructor() {
     super(userRepository);
@@ -70,12 +74,14 @@ export class UserService extends Service<User, UserRepository> {
               <small>THIS WAS AN AUTOMATED MESSAGE.</small>`,
             );
           }
+          sleep(250);
         });
 
         return true;
       }
 
       log.error('[MAIL::DS:DNE] No director supervisor exist');
+      return false;
     }
 
     log.error(`[MAIL::EMPLOYEE::DNE] Failed to send email because employee with id ${reimbursement.employeeId} does not exist!`);

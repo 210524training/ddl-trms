@@ -18,9 +18,12 @@ import {
 } from './errors';
 
 import reimbursementService from './services/reimbursement.service';
-import { upload as uploadFile, download as downloadFile, unLinkFile } from './dynamo/s3';
+import {
+  upload as uploadFile, download as downloadFile, unLinkFileLocally, unlinkFileInS3,
+} from './dynamo/s3';
 
 import { Attachment } from './@types/trms/index.d';
+import userService from './services/user.service';
 
 dotenv.config({});
 
@@ -71,7 +74,7 @@ const uploadRoute = async (req: Request<{ rid: string }>, res: Response) => {
   }
 
   const result = await uploadFile(file);
-  await unLinkFile(file.path);
+  await unLinkFileLocally(file.path);
   log.debug(result);
 
   if (result.Key) {
@@ -108,10 +111,10 @@ const getFile = async (req: Request<{ rid: string, key: string }>, res: Response
   if (!user) {
     throw new AuthenticationError('Not logged in');
   }
-
+  const ru = await userService.getById(user.id);
   const reimbursement = await reimbursementService.getById(rid);
-  if (reimbursement && reimbursement.attachments.map((a) => a.key).includes(key)) {
-    if (reimbursement.employeeId === user.id || user.isSuperUser()) {
+  if (ru && reimbursement && reimbursement.attachments.map((a) => a.key).includes(key)) {
+    if (reimbursement.employeeId === user.id || ru.isSuperUser()) {
       const stream = downloadFile(key);
       return stream.pipe(res);
     }
@@ -121,8 +124,42 @@ const getFile = async (req: Request<{ rid: string, key: string }>, res: Response
   throw new BadRequestError('Missing information, file not property of reimbursement, or reimbursement does not exist');
 };
 
+const deleteFile = async (req: Request<{ rid: string, key: string }>, res: Response) => {
+  log.debug('Reached delete file route');
+  const { params: { rid, key }, session: { user } } = req;
+
+  if (!rid) {
+    throw new BadRequestError('Missing reimbursement id in params /files/:rid/:key');
+  }
+
+  if (!key) {
+    throw new BadRequestError('Missing key (file key) in params /files/:rid/:key');
+  }
+
+  if (!user) {
+    throw new AuthenticationError('Not logged in');
+  }
+  const ru = await userService.getById(user.id);
+  const reimbursement = await reimbursementService.getById(rid);
+  log.debug('>>', reimbursement);
+  log.debug('>> incluides >>? ?', reimbursement ? reimbursement.attachments.map((a) => a.key).includes(key) : '');
+  if (ru && reimbursement && reimbursement.attachments.map((a) => a.key).includes(key)) {
+    log.debug('-====-==-');
+    if (reimbursement.employeeId === user.id || ru.isSuperUser()) {
+      log.debug('deleting files route');
+      const result = await unlinkFileInS3(key);
+      log.debug(result);
+      return res.status(200);
+    }
+    throw new AuthorizationError('You are not authorized to delete files from another user.');
+  }
+
+  throw new BadRequestError('Missing information, file not property of reimbursement, or reimbursement does not exist');
+};
+
 app.post('/upload/:rid', upload.single('file'), uploadRoute);
 app.get('/files/:rid/:key', getFile);
+app.delete('/files/:rid/:key', deleteFile);
 
 app.use('/', baseRouter);
 

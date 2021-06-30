@@ -38,4 +38,13 @@ export const download = (fileKey: string): internal.Readable => {
   return s3.getObject(downloadParams).createReadStream();
 };
 
-export const unLinkFile = util.promisify(fs.unlink);
+export const unlinkFileInS3 = (fileKey: string) => {
+  const params: S3.DeleteObjectRequest = {
+    Bucket: bucketName,
+    Key: fileKey,
+  };
+
+  return s3.deleteObject(params).promise();
+};
+
+export const unLinkFileLocally = util.promisify(fs.unlink);

@@ -59,11 +59,13 @@ export default class Reimbursement implements IReimbursement {
     if (this.startedApprovalProcess) {
       const awaitingBenCo = this.approvals.directorSupervisor && this.approvals.departmentHead;
       const exceededApprovalTime = diffInWeeks(new Date(this.approvals.startDate)) > 2;
-      if (!this.sentEmail && awaitingBenCo && exceededApprovalTime) {
-        // this.sentEmail = await userService.sendMailToDirectorSupervisors(this);
+      if (!this.sentEmail && awaitingBenCo) {
+        this.sentEmail = await userService.sendMailToDirectorSupervisors(this);
         this.updateTime();
+        await reimbursementService.update(this);
       } else if (exceededApprovalTime) {
         this.reimbusementStatus = 'Approved';
+        await reimbursementService.update(this);
       }
     }
   }
