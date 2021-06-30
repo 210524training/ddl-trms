@@ -16,6 +16,8 @@ import CommentsInput, { CommentList } from './CommentsInput';
 import { myReimbursements } from '../../../remote/trms-backend/trms.users.api';
 import FileUpload from '../upload/UploadPage';
 import FileListView from '../user-page/FileList';
+import client from '../../../remote/trms-backend/trms.client';
+
 interface Props {
   r: Reimbursement,
   gradeFormats: GradeFormat[],
@@ -23,6 +25,7 @@ interface Props {
   requestedBy: User,
   review?: boolean
 }
+
 const getAmountToBePaid = async (createdBy: User, costs: Item[], eventType: EventType, reses: Reimbursement[], setAmountPaid: any) => {
   try {
     const available = CReimbursement.availableReimbursment(createdBy, {
@@ -34,6 +37,7 @@ const getAmountToBePaid = async (createdBy: User, costs: Item[], eventType: Even
   }
   
 }
+
 const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeFormats, requestedBy }): JSX.Element => {
   const history = useHistory();
   if (!(new CUser(
@@ -79,6 +83,13 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
   const [initialOptionsGradeFormats, setInitialOptionsGradeFormats] = useState<RadioFieldOption[]>([]);
   const [initialOptionsStatusList, setInitialOptionsStatusList] = useState<RadioFieldOption[]>([]);
 
+  const [toDelete, setToDelete] = useState<string[]>([]);
+
+  useEffect(() => {
+    getAmountToBePaid(createdBy, costs, eventType, reses, setAmountPaid);
+  }, [costs, createdBy, eventType, reses]);
+
+
   useEffect(() => {
     myReimbursements(createdBy.id).then(e => {
       setReses(e);
@@ -120,7 +131,6 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
       } as RadioFieldOption)
     );
 
-    getAmountToBePaid(createdBy, costs, eventType, reses, setAmountPaid);
     setInitialOptionsEventType([...etops]);
     setInitialOptionsCostItems([...ciops]);
     setInitialOptionsGradeFormats([...gfops]);
@@ -172,72 +182,7 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
     setWorkTimeMissed(parseInt(e.target.value) + '');
   };
 
-  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const approvals = r.approvals;
-    let startedApprovalProcess = false;
-    let rs = reimbursementStatus;
-    if (reimbursementStatus === 'Approved' || reimbursementStatus === 'Started Approval Process' || reimbursementStatus === 'More Information Needed') {
-      if (requestedBy.employeeRoles.includes('Department Head')) {
-        r.approvals.startDate = new Date().toLocaleString();
-        startedApprovalProcess = true;
-        r.approvals.departmentHead = true;
-        rs = reimbursementStatus === 'Approved' ? 'Started Approval Process' : reimbursementStatus;
-      }
-
-      if (requestedBy.employeeRoles.includes('Director Supervisor')) {
-        startedApprovalProcess = true;
-        r.approvals.directorSupervisor = true;
-        rs = reimbursementStatus === 'Approved' ? 'Started Approval Process' : reimbursementStatus;
-      }
-
-      if (requestedBy.employeeRoles.includes('Benefits Coordinator')) {
-        startedApprovalProcess = true;
-        r.approvals.benefitsCoordinator = true;
-        rs = 'Approved'
-      }
-    }
-
-    if (reimbursementStatus === 'Rejected') {
-      if (requestedBy.employeeRoles.includes('Benefits Coordinator')) {
-        startedApprovalProcess = true;
-        r.approvals.benefitsCoordinator = true;
-        r.approvals.endDate = new Date().toLocaleString();
-      }
-    }
-    console.log(r.approvals);
-    const response = await updateReimbursement(new CReimbursement(
-      r.employeeId,
-      title,
-      eventType,
-      gradingFormatId,
-      startDate.toLocaleString(),
-      endDate.toLocaleString(),
-      locationOfEvent,
-      descriptionOfEvent,
-      costs,
-      grade,
-      workRelatedJustification,
-      r.completed,
-      amountPaid,
-      attachments,
-      parseInt(workTimeMissed) || 0,
-      rs,
-      adminComments,
-      r.id,
-      r.createdAt,
-      new Date().toLocaleString(),
-      startedApprovalProcess,
-      approvals,
-      r.sentEmail,
-      true,
-    ));
-
-    history.push('/me?updated=' + !!response)
-  }
-
-  let statusRadioFiled = undefined;
+  let statusRadioFiled: JSX.Element | undefined = undefined;
 
   const field: JSX.Element = <RadioField 
     displayName="Status"
@@ -268,6 +213,76 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
     } else {
       statusRadioFiled = field;
     }
+  }
+
+  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const approvals = r.approvals;
+    let startedApprovalProcess = false;
+    let rs = reimbursementStatus;
+    if (statusRadioFiled && (reimbursementStatus === 'Approved' || reimbursementStatus === 'Started Approval Process' || reimbursementStatus === 'More Information Needed')) {
+      if (requestedBy.employeeRoles.includes('Department Head')) {
+        r.approvals.startDate = new Date().toLocaleString();
+        startedApprovalProcess = true;
+        r.approvals.departmentHead = true;
+        rs = reimbursementStatus === 'Approved' ? 'Started Approval Process' : reimbursementStatus;
+      }
+
+      if (requestedBy.employeeRoles.includes('Director Supervisor')) {
+        startedApprovalProcess = true;
+        r.approvals.directorSupervisor = true;
+        rs = reimbursementStatus === 'Approved' ? 'Started Approval Process' : reimbursementStatus;
+      }
+
+      if (requestedBy.employeeRoles.includes('Benefits Coordinator')) {
+        startedApprovalProcess = true;
+        r.approvals.benefitsCoordinator = true;
+        rs = reimbursementStatus;
+      }
+    } else if (!statusRadioFiled && requestedBy.employeeRoles.includes('Employee') && reimbursementStatus === 'More Information Needed') {
+      rs = r.startedApprovalProcess ? 'Started Approval Process' : 'Submitted'
+    }
+
+    if (reimbursementStatus === 'Rejected') {
+      if (requestedBy.employeeRoles.includes('Benefits Coordinator')) {
+        startedApprovalProcess = true;
+        r.approvals.benefitsCoordinator = true;
+        r.approvals.endDate = new Date().toLocaleString();
+      }
+    }
+    console.log(r.approvals);
+    toDelete.forEach(fileKey => {
+      client.delete(`/files/${r.id}/${fileKey}`).then(console.debug).catch(console.error);
+    })
+    const response = await updateReimbursement(new CReimbursement(
+      r.employeeId,
+      title,
+      eventType,
+      gradingFormatId,
+      startDate.toLocaleString(),
+      endDate.toLocaleString(),
+      locationOfEvent,
+      descriptionOfEvent,
+      costs,
+      grade,
+      workRelatedJustification,
+      r.completed,
+      amountPaid,
+      attachments,
+      parseInt(workTimeMissed) || 0,
+      rs,
+      adminComments,
+      r.id,
+      r.createdAt,
+      new Date().toLocaleString(),
+      startedApprovalProcess,
+      approvals,
+      r.sentEmail,
+      true,
+    ));
+
+    history.push('/me?updated=' + !!response)
   }
 
   return (
@@ -341,23 +356,27 @@ const UpdateReimbursementForm: React.FC<Props> = ({ r, createdBy, review, gradeF
           <hr />
 
           <FileListView items={attachments} rid={r.id} onDelete={(idx: number) => {
-            attachments.splice(idx, 1);
+            const deleted = attachments.splice(idx, 1);
             setAttachements([
               ...attachments
             ]);
-            console.log(attachments);
+            if (deleted && deleted.length > 0) {
+              const key = deleted[0].key;
+              toDelete.push(key);
+              setToDelete([
+                ...toDelete,
+              ]);
+
+              console.log(toDelete)
+            }
           }} />
           <FileUpload 
             rid={r.id}
             onChange={(a: Attachment) => {
-              console.log(a);
-              console.log(attachments);
               setAttachements([
                 ...attachments,
                 a
               ]);
-
-              console.log(attachments);
             }}
           />
 

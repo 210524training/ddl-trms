@@ -19,6 +19,7 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
   const [reimbursements, setReimbursements] = useState<Reimbursement[]>([]);
   const [gradeFormats, setGradeFormats] = useState<GradeFormat[]>([]);
   const [status, setStatus] = useState<string | undefined>(undefined);
+  const [popUp, setPopUp] = useState<boolean>(false);
   const history = useHistory();
 
   if (!user) history.push('/login');
@@ -33,6 +34,12 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
     });
     getAllGradeFormats().then(setGradeFormats).catch(err => {
       setStatus('An error occurred! ' + err.message);
+    });
+
+    reimbursements.forEach(r => {
+      if (r.reimbusementStatus === 'More Information Needed') {
+        setPopUp(true);
+      }
     })
   };
   
@@ -46,7 +53,7 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
   const displayReimbursemnt = (r: Reimbursement, idx: number) => {
     const color = translateStatusToColor(r.reimbusementStatus);
     const deletedSID = shortid();
-    const mutable = r.reimbusementStatus !== 'Approved' &&   r.reimbusementStatus !== 'Rejected';
+    const mutable = r.reimbusementStatus !== 'Approved' &&   r.reimbusementStatus !== 'Rejected' && r.reimbusementStatus !== 'Started Approval Process';
     return (
       
       <tr key={r.id} className={`table-${color}`}>
@@ -104,6 +111,7 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
           {user ? (
         <>
           <p>Hello, <span className="text-capitalize">{user.firstName.trim()}</span>!</p>
+          <p>You are: {user.employeeRoles.join(', ')}</p>
           <p>These are your reimbursement requests:</p>
         </>
     ) : 'not logged in'}
@@ -138,7 +146,15 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
         </div>
       </div>
     </div>
-
+      {
+        popUp 
+        ? 
+          <div className="alert alert-warning" role="alert">
+            One or more of your claims requires more information.
+          </div> 
+        : 
+          undefined
+      }
       <table className="table table-bordered table-hover">
         <thead>
           <tr id="reimbursements-table-head">
@@ -153,6 +169,7 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
           </tr>
         </thead>
         <tbody>
+          
           {reimbursements.length > 0 ? reimbursements.map((r, idx) => (
             displayReimbursemnt(r, idx)
           )) : (

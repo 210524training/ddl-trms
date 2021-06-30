@@ -20,7 +20,7 @@ const Navbar: React.FC<Props> = (props) => {
   return (
     <nav className="navbar navbar-expand-md navbar-light bg-light fixed-top">
       <div id="nav" className="container-fluid">
-        <NavLink className="navbar-brand" to="/">TRMS</NavLink>
+        <NavLink className="navbar-brand" to="/"><code>TRMS++</code></NavLink>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -31,6 +31,7 @@ const Navbar: React.FC<Props> = (props) => {
               ? ( 
               <li className="nav-item">
                 <NavLink className="nav-link" to="/reimbursements/create">Submit a Reimbursement</NavLink>
+                {/* <a href="http://localhost:4000/files/e10da005-130b-427b-861d-f5d40c046497/cea5ac77fe6ec5f4ab30df9e0d620f15" target="_blank" rel="noreferrer">hey</a> */}
               </li>) : (
                 <li className="nav-item"></li>
               )

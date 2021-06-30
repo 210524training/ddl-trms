@@ -104,6 +104,7 @@ const CostsList: React.FC<Props> = ({items, setItems, onChange}): JSX.Element =>
         </tr>
       </thead>
       <tbody>
+        {items.length === 0 ? <tr style={{textAlign: 'center'}}><td colSpan={5}>No costs.</td></tr>: undefined}
         {
           items.filter(i => !!i.title.trim() && !!i.cost).map((i, idx) => (
             <tr key={i.type + idx}>

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import User from '../../../models/user';
 import Reimbursement from '../../../models/reimbursement';
 import GradeFormat from '../../../models/grade-format';
@@ -7,21 +7,29 @@ import FileListView from './FileList';
 import { v4 as uuid } from 'uuid';
 import Modal from './Modal';
 import { injectAnchorTags } from '../../../models/utils/remail';
+import { getUserByID } from '../../../remote/trms-backend/trms.users.api';
 interface Props {
   sid: string,
   user: User,
   gradeFormat: GradeFormat,
   r: Reimbursement,
+  adminView?: boolean,
 }
 
-const ViewReimbursement: React.FC<Props> = ({r, user, gradeFormat, sid = uuid()}) => {
-  
+const ViewReimbursement: React.FC<Props> = ({r, user, gradeFormat, sid = uuid(), adminView}) => {
+  const [by, setBy] = useState<User>(user);
+
+  useEffect(() => {
+    if (adminView) {  
+      getUserByID(r.employeeId).then(setBy).catch(console.error);
+    }
+  }, [adminView, r.employeeId]);
 
   return (
     <Modal 
       uid={'view-modal' + sid}
       ClickRender={() => <i className="bi bi-eye text-primary"></i>}
-      Body={() => <DisplayTable r={r} user={user} gradeFormat={gradeFormat}/>}
+      Body={() => <DisplayTable r={r} by={by} gradeFormat={gradeFormat}/>}
       clickTitle={`View ${r.title}`}
       staticBackdrop={false}
       xl={true}
@@ -29,15 +37,21 @@ const ViewReimbursement: React.FC<Props> = ({r, user, gradeFormat, sid = uuid()}
   );
 }
 
-const DisplayTable: React.FC<{ r: Reimbursement, user: User, gradeFormat: GradeFormat }> = ({ 
-  r, user, gradeFormat,
+type DisplayProps = {
+  r: Reimbursement,
+  by: User,
+  gradeFormat: GradeFormat 
+};
+
+const DisplayTable: React.FC<DisplayProps> = ({ 
+  r, by, gradeFormat,
 }): JSX.Element => {
   return (
     <table className="table table-striped table-hover">
       <tbody>
         <tr>
           <th>Submitted by</th>
-          <td>{user.lastName}, {user.firstName}</td>
+          <td>{`${by.lastName}, ${by.firstName} (${by.username})`}</td>
         </tr>
         <tr>
           <th>Title</th>

@@ -1,5 +1,5 @@
 // https://stackoverflow.com/a/3809435
-export const emailExpression = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)?/gi;
+export const emailExpression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi;
 export const emailRegex = new RegExp(emailExpression);
 
 export const isUrl = (text: string) => {

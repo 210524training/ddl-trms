@@ -20,12 +20,14 @@ const AllReimbursements: React.FC<unknown> = (props): JSX.Element => {
 
   const setData = (user: User) => {
     setStatus('Loading...');
+    
     getReimbursementsToApprove().then((rs) => {
       setReimbursements(rs);
       setStatus(reimbursements.length === 0 ? 'No content.' : undefined);
     }).catch((err) => {
       setStatus('An error occurred! ' + err.message);
     });
+
     getAllGradeFormats().then(setGradeFormats).catch(err => {
       setStatus('An error occurred! ' + err.message);
     })
@@ -51,7 +53,6 @@ const AllReimbursements: React.FC<unknown> = (props): JSX.Element => {
         <td>{r.id}</td>
         <td>{r.title}</td>
         <td>{r.reimbusementStatus}</td>
-        <td>{r.createdAt}</td>
         <td>{r.updatedAt}</td>
         <td className="text-center">
           {
@@ -66,7 +67,13 @@ const AllReimbursements: React.FC<unknown> = (props): JSX.Element => {
         <td className="text-center">
           {
           user 
-            ? <ViewReimbursement r={r} user={user} gradeFormat={gradeFormats.find(g => g.id === r.gradingFormatId) || new GradeFormat()} sid={shortid()} /> 
+            ? <ViewReimbursement
+              adminView={true}
+              r={r} 
+              user={user} 
+              gradeFormat={gradeFormats.find(g => g.id === r.gradingFormatId) || new GradeFormat()} 
+              sid={shortid()} 
+            /> 
             : <i className="bi bi-x-octagon"></i>
           }
         </td>
@@ -127,7 +134,6 @@ const AllReimbursements: React.FC<unknown> = (props): JSX.Element => {
             <th>ID</th>
             <th>Title</th>
             <th>Status</th>
-            <th>Created</th>
             <th>Last Update</th>
             <th>Review</th>
             <th>View</th>

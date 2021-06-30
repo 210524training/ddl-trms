@@ -15,11 +15,11 @@ const CostsInput: React.FC<Props> = ({ items, by, setItems }): JSX.Element => {
 
   return (
     <>
-    <label htmlFor="costsInput" className="col-sm-2 col-form-label">Comment</label>
+    {/* <label htmlFor="costsInput" className="col-sm-2 col-form-label">Comment</label> */}
     
     <div className="form-group row">
       
-      <div className="col-sm-10">
+      <div className="col-sm-12">
         <CommentList items={items} setItems={setItems} by={by} />
         <div id="costsField">
           <InputField

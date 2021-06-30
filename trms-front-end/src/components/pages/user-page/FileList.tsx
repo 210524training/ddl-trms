@@ -1,5 +1,6 @@
 import React from 'react';
 import { Attachment } from '../../../@types';
+import formatBytes from '../../../models/utils/convert';
 
 interface Props {
   items: Attachment[],
@@ -14,8 +15,8 @@ const FileListView: React.FC<Props> = ({ items, rid, onDelete }): JSX.Element =>
         <tr>
           <th>#</th>
           <th>File Name</th>
-          <th>File Type</th>
-          <th>File Size</th>
+          <th>Mime Type</th>
+          <th>Size</th>
           <th style={{textAlign: 'center'}}>Download</th>
           {!!onDelete ? <th style={{textAlign: 'center'}}>Delete</th> : undefined}
         </tr>
@@ -28,7 +29,7 @@ const FileListView: React.FC<Props> = ({ items, rid, onDelete }): JSX.Element =>
                 <td>{idx + 1}</td>
                 <td>{a.name}</td>
                 <td>{a.mimetype}</td>
-                <td>{a.size} bytes</td>
+                <td>{formatBytes(a.size)}</td>
                 <td style={{textAlign: 'center'}}>
                   <a 
                   target="_blank"

@@ -55,12 +55,14 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
   const [initialOptionsCostItems, setInitialOptionsCostItems] = useState<RadioFieldOption[]>([]);
   const [initialOptionsGradeFormats, setInitialOptionsGradeFormats] = useState<RadioFieldOption[]>([]);
   
+  useEffect(() => {
+    getAmountToBePaid(requestedBy, costs, eventType, reses, setAmountPaid);
+  }, [costs, eventType, requestedBy, reses]);
 
   useEffect(() => {
     myReimbursements(requestedBy.id).then(e => {
       setReses(e);
     });
-    getAmountToBePaid(requestedBy, costs, eventType, reses, setAmountPaid);
 
     const gfops = gradeFormats.map((gf) => ({
         displayName: `${gf.gradeFormat} (passing: ${gf.passingGrade})`,
@@ -163,7 +165,7 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
       false,
     ));
 
-    history.push('/me?updated=' + !!response)
+    history.push('/me?created=' + !!response)
   }
 
   return (
