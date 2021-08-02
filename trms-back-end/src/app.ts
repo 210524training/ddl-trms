@@ -33,7 +33,9 @@ const { BAD_REQUEST, UNAUTHORIZED, NOT_FOUND } = StatusCodes;
 app.use(cors({
   credentials: true,
   origin: [
-    process.env.WEB_CLIENT_ORIGIN || 'http://localhost:3000',
+    process.env.WEB_CLIENT_ORIGIN || '',
+    'http://localhost:5000',
+    'http://localhost:3000',
   ],
 }));
 

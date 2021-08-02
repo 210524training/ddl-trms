@@ -7,6 +7,7 @@ import GradeFormatsPage from '../components/pages/grade-formats-page/GradeFormat
 import UsersPage from '../components/pages/users-page/UsersPage';
 import AllReimbursements from '../components/pages/reimbursements-page/ReimbursementsPage';
 import CreateReimbursementComponent from '../components/pages/create-reimbursement/CreateReimbursementComponent';
+import DownloadFile from '../components/pages/download/DownloadPage';
 
 const AppRoutes: React.FC<unknown> = (props) => {
 
@@ -20,6 +21,9 @@ const AppRoutes: React.FC<unknown> = (props) => {
       </Route>
       <Route exact path='/reimbursements/edit/:id'>
         <EditReimbursement />
+      </Route>
+      <Route exact path='/files/:rid/:key'>
+        <DownloadFile />
       </Route>
       <Route exact path='/reimbursements/approve/:id'>
         <EditReimbursement review={true} />

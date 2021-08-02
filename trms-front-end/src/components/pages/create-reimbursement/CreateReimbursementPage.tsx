@@ -14,10 +14,6 @@ import InputField from '../edit-reimbursement/InputFeild';
 import CostsInput from '../edit-reimbursement/CostsInput';
 import RadioField, { RadioFieldOption } from '../edit-reimbursement/RadioField';
 
-interface Props {
-  gradeFormats: GradeFormat[],
-  requestedBy: User,
-}
 const getAmountToBePaid = async (createdBy: User, costs: Item[], eventType: EventType, reses: Reimbursement[], setAmountPaid: any) => {
   try {
     const available = CReimbursement.availableReimbursment(createdBy, {
@@ -27,13 +23,16 @@ const getAmountToBePaid = async (createdBy: User, costs: Item[], eventType: Even
   } catch (err) {
     setAmountPaid(0)
   }
-  
-}
-const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy }): JSX.Element => {
+};
 
-  const costTypes = ['Event Cost', 'Course Material', 'Other']
-  const id = uuid();
+interface Props {
+  gradeFormats: GradeFormat[],
+  requestedBy: User,
+}
+
+const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy }): JSX.Element => {
   const history = useHistory();
+  const costTypes = ['Event Cost', 'Course Material', 'Other']
   const eventTypes: EventType[] = ['University Courses', 'Seminars', 'Certification Preparation Classes', 'Certification', 'Technical Training', 'Other'];
   const [title, setTitle] = useState<string>('');
   const [eventType, setEventType] = useState<EventType>('Other');
@@ -47,22 +46,20 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
   const [workRelatedJustification, setWorkRelatedJustification] = useState<string>('');
   const [workTimeMissed, setWorkTimeMissed] = useState<string>('0');
 
-
   const [amountPaid, setAmountPaid] = useState<number>(0);
   const [reses, setReses] = useState<Reimbursement[]>([]);
 
   const [initialOptionsEventType, setInitialOptionsEventType] = useState<RadioFieldOption[]>([]);
   const [initialOptionsCostItems, setInitialOptionsCostItems] = useState<RadioFieldOption[]>([]);
   const [initialOptionsGradeFormats, setInitialOptionsGradeFormats] = useState<RadioFieldOption[]>([]);
-  
-  useEffect(() => {
-    getAmountToBePaid(requestedBy, costs, eventType, reses, setAmountPaid);
-  }, [costs, eventType, requestedBy, reses]);
 
   useEffect(() => {
-    myReimbursements(requestedBy.id).then(e => {
-      setReses(e);
-    });
+    getAmountToBePaid(requestedBy, costs, eventType, reses, setAmountPaid);
+  }, [costs, requestedBy, eventType, reses]);
+
+
+  useEffect(() => {
+    myReimbursements(requestedBy.id).then(setReses).catch(console.error);
 
     const gfops = gradeFormats.map((gf) => ({
         displayName: `${gf.gradeFormat} (passing: ${gf.passingGrade})`,
@@ -91,7 +88,6 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
       } as RadioFieldOption)
     );
 
-    getAmountToBePaid(requestedBy, costs, eventType, reses, setAmountPaid);
     setInitialOptionsEventType([...etops]);
     setInitialOptionsCostItems([...ciops]);
     setInitialOptionsGradeFormats([...gfops]);
@@ -130,9 +126,7 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
     setDescriptionOfEvent(e.target.value);
   };
 
-  
   const handleWorkRelatedJustificationChange = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
     setWorkRelatedJustification(e.target.value);
   };
   const handleWorkTimeMissedChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -141,6 +135,7 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     const response = await createReimbursement(new CReimbursement(
       requestedBy.id,
       title,
@@ -159,9 +154,16 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
       parseInt(workTimeMissed) || 0,
       'Submitted',
       [],
-      id,
+      uuid(),
       new Date().toLocaleString(),
       new Date().toLocaleString(),
+      false,
+      {
+        benefitsCoordinator: false, departmentHead: false, directorSupervisor: false, 
+        startDate: new Date().toLocaleString(),
+        endDate: new Date().toLocaleString(),
+      },
+      false,
       false,
     ));
 
@@ -287,24 +289,28 @@ const CreateReimbursementPage: React.FC<Props> = ({ gradeFormats, requestedBy })
             onChange={handleWorkTimeMissedChange}
           />
 
-          <div className="col-auto">
-                <label className="sr-only" htmlFor="inlineFormInputGroup">Amount to Pay</label>
-                <div className="input-group mb-2">
-                  <div className="input-group-prepend">
-                    <div className="input-group-text">$</div>
-                  </div>
-                  <input type="number" className="form-control" id="amountPaidImmutable" placeholder="Amount" readOnly value={amountPaid} />
-                </div>
-              </div>
           <hr />
+
+          <div className="col-auto">
+            <label className="sr-only" htmlFor="inlineFormInputGroup">Amount to Pay</label>
+            <div className="input-group mb-2">
+              <div className="input-group-prepend">
+                <div className="input-group-text">$</div>
+              </div>
+              <input type="number" className="form-control" id="amountPaidImmutable" placeholder="Amount" readOnly value={amountPaid} />
+            </div>
+          </div>
+
+          <hr />
+          
           <div className="form-row align-items-center">
             <div className="col-sm-10">
-              <button type="submit" className="btn btn-primary">Modify {title}</button>
+              <button type="submit" className="btn btn-primary">Create {title}</button>
             </div>
           </div>
         </form>
-          <hr />
-
+        
+        <hr />
       </div>
     </>
   );

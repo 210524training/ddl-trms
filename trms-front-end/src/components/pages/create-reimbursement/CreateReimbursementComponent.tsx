@@ -3,7 +3,7 @@ import { useAppSelector } from '../../../hooks';
 import GradeFormat from '../../../models/grade-format';
 import { getAllGradeFormats } from '../../../remote/trms-backend/trms.grade-formats.api';
 import { selectUser, UserState } from '../../../slices/user.slice';
-import UpdateReimbursementForm from './CreateReimbursementPage';
+import CreateReimbursement from './CreateReimbursementPage';
 
 const EditReimbursement: React.FC<unknown> = (): JSX.Element => {
   const user = useAppSelector<UserState>(selectUser);
@@ -24,7 +24,7 @@ const EditReimbursement: React.FC<unknown> = (): JSX.Element => {
       <br />
       {
         user && gradeFormats
-          ? <UpdateReimbursementForm
+          ? <CreateReimbursement
             requestedBy={user}
             gradeFormats={gradeFormats}
           />

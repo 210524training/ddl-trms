@@ -6,39 +6,59 @@ Here goes your awesome project description!
 
 ## Technologies Used
 
-* Tech 1 - version 1.0
-* Tech 2 - version 2.0
-* Tech 3 - version 3.0
+* TypeScript
+* React
+* DynamoDB
+* AWS S3
+* ExpressJS
+* Jest
+* Log4js
 
 ## Features
 
-List of features ready and TODOs for future development
-* Awesome feature 1
-* Awesome feature 2
-* Awesome feature 3
-
-To-do list:
-* Wow improvement to be done 1
-* Wow improvement to be done 2
+* The employee is able to request a reimbursement
+* The employee may upload files to the system.
+* The elevated user may review the requested reimbursement
+* The elevated user may deny, approve, request more information, etc. from the employee.
+* The elevated user may append comments to the request.
 
 ## Getting Started
+Clone the repository
    
-(include git clone command)
-(include all environment setup steps)
+```
+git clone https://github.com/210524training/ddl-trms.git
+```
+In the backend and frontend:
 
-> Be sure to include BOTH Windows and Unix command  
-> Be sure to mention if the commands only work on a specific platform (eg. AWS, GCP)
+- Use the `.env.example` to create a `.env` file, and fill out the information.
 
-- All the `code` required to get started
-- Images of what it should look like
+For the backend:
+
+- Create a DynamoDB table (called `TRMS`), and an S3 Bucket (called `trms-backend-filestorage`)
+
+Once all of that is set-up `cd` into `trms-back-end`, and do an `npm install`. Do the same for the frontend `cd` onto `trms-front-end`, and do an `npm install`
+
+```
+cd trms-back-end && npm install && cd .. && cd trms-front-end && npm install && cd ..
+```
+
+Run the frontend:
+```
+npm run start
+```
+
+Run the backend:
+```
+npm run build:start:prod
+```
+
+## Screenshots
+
+> Images of what it should look like
 
 ## Usage
 
 > Here, you instruct other people on how to use your project after they’ve installed it. This would also be a good place to include screenshots of your project in action.
-
-## Contributors
-
-> Here list the people who have contributed to this project. (ignore this section, if its a solo project)
 
 ## License
 

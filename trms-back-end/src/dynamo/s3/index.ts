@@ -25,7 +25,7 @@ export const upload = (file: Express.Multer.File): Promise<S3.ManagedUpload.Send
     Body: fileStream,
     Key: file.filename,
   };
-
+  
   return s3.upload(uploadParams).promise();
 };
 
@@ -48,3 +48,12 @@ export const unlinkFileInS3 = (fileKey: string) => {
 };
 
 export const unLinkFileLocally = util.promisify(fs.unlink);
+
+export const download = (fileKey: string): string => {
+  const downloadParams: S3.GetObjectRequest = {
+    Key: fileKey,
+    Bucket: bucketName,
+  };
+
+  return s3.getSignedUrl('getObj', downloadParams);
+};

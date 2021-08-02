@@ -97,7 +97,6 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
       </tr>
     );
   }
-
   return (
     <>
     <br />
@@ -146,6 +145,7 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
         </div>
       </div>
     </div>
+
       {
         popUp 
         ? 
@@ -153,7 +153,7 @@ const UserPage: React.FC<unknown> = (props): JSX.Element => {
             One or more of your claims requires more information.
           </div> 
         : 
-          undefined
+          <div></div>
       }
       <table className="table table-bordered table-hover">
         <thead>

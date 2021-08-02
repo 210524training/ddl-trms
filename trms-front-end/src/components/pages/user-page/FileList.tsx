@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Attachment } from '../../../@types';
 import formatBytes from '../../../models/utils/convert';
 
@@ -17,7 +18,8 @@ const FileListView: React.FC<Props> = ({ items, rid, onDelete }): JSX.Element =>
           <th>File Name</th>
           <th>Mime Type</th>
           <th>Size</th>
-          <th style={{textAlign: 'center'}}>Download</th>
+          <th style={{textAlign: 'center'}}>Open in Current Window</th>
+          <th style={{textAlign: 'center'}}>Open in New Tab</th>
           {!!onDelete ? <th style={{textAlign: 'center'}}>Delete</th> : undefined}
         </tr>
       </thead>
@@ -31,13 +33,21 @@ const FileListView: React.FC<Props> = ({ items, rid, onDelete }): JSX.Element =>
                 <td>{a.mimetype}</td>
                 <td>{formatBytes(a.size)}</td>
                 <td style={{textAlign: 'center'}}>
+                  <Link 
+                    data-bs-dismiss="modal"
+                    to={`/files/${rid}/${a.key}`}
+                  >
+                    <i className="bi bi-folder2-open" title={`Open ${a.name} (${formatBytes(a.size)})`}></i>
+                  </Link>
+                </td>
+                <td style={{textAlign: 'center'}}>
                   <a 
                   target="_blank"
                   rel="noreferrer"
                   href={`http://localhost:4000/files/${rid}/${a.key}`}
                   download={a.name}
                   >
-                    <i className="bi bi-download" title={`Download ${a.name} in a new tab`}></i>
+                    <i className="bi bi-folder-symlink" title={`Open ${a.name} in a new tab`}></i>
                   </a>
                 </td>
                 {!!onDelete ? (

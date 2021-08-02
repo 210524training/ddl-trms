@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface Props {
   uid: string,
@@ -17,7 +17,8 @@ const Modal: React.FC<Props> = ({
   uid, buttonTitle,
   Body, ClickRender, onClick, 
 }): JSX.Element => {
-    return (
+  const [showing, setShowing] = useState<boolean>(false);  
+  return (
     <div key={`modal-${uid}`}>
       <button 
         className="btn btn-sm"
